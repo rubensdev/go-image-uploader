@@ -27,6 +27,7 @@ func (v *ImageValidator) ExceedsMaxFileSize(size int64) bool {
 }
 
 func (v *ImageValidator) ValidateImage(file io.Reader, contentType string) error {
+	fmt.Println(contentType, v.AllowedMimeTypes)
 	mimeTypeAllowed := false
 	for _, allowedType := range v.AllowedMimeTypes {
 		if contentType == allowedType {

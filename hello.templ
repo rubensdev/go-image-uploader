@@ -1,0 +1,13 @@
+package main
+
+templ Hello(name string) {
+	@Layout("Hello!") {
+		<h1 style="color: red;">Hello, { name }</h1>
+		@button(ButtonHTML{Text: "Hello"})
+		@button(ButtonHTML{Text: "Bye"})
+		<form method="POST" action="/upload" enctype="multipart/form-data">
+			<input name="image" type="file"/>
+			@button(ButtonHTML{Text: "Submit", Type: "submit"})
+		</form>
+	}
+}

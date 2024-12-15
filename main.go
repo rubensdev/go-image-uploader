@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/a-h/templ"
 )
 
 type config struct {
@@ -30,13 +32,15 @@ func main() {
 	flag.Func("allowed-mimetypes", "Allowed mimetypes", func(val string) error {
 		if val != "" {
 			cfg.allowedMimeTypes = strings.Fields(val)
-		} else {
-			cfg.allowedMimeTypes = []string{"image/jpeg", "image/png", "image/gif"}
 		}
 		return nil
 	})
 
 	flag.Parse()
+
+	if len(cfg.allowedMimeTypes) == 0 {
+		cfg.allowedMimeTypes = []string{"image/jpeg", "image/png", "image/gif"}
+	}
 
 	validator := &ImageValidator{
 		MaxWidthPixels:   cfg.maxWidthPixels,
@@ -50,7 +54,10 @@ func main() {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
+	component := Hello("Rubens")
+
 	imgHandler := NewImageHandler(logger, validator)
+	router.Handle("/", templ.Handler(component))
 	router.HandleFunc("/upload", imgHandler.Handle)
 	router.HandleFunc("/upload/multiple", imgHandler.HandleMultiple)
 

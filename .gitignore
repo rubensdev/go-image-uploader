@@ -1,2 +1,4 @@
 sample_images/
 uploads/
+*_templ.go
+tmp/

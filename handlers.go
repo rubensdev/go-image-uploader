@@ -88,6 +88,7 @@ func (h *ImageHandler) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
+	Success().Render(r.Context(), w)
 }
 
 func (h *ImageHandler) HandleMultiple(w http.ResponseWriter, r *http.Request) {
