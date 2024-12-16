@@ -56,8 +56,11 @@ func main() {
 
 	component := Hello("Rubens")
 
+	fs := http.FileServer(http.Dir("./static"))
+
 	imgHandler := NewImageHandler(logger, validator)
 	router.Handle("/", templ.Handler(component))
+	router.Handle("/static/", http.StripPrefix("/static/", fs))
 	router.HandleFunc("/upload", imgHandler.Handle)
 	router.HandleFunc("/upload/multiple", imgHandler.HandleMultiple)
 

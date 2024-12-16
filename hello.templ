@@ -1,13 +1,20 @@
 package main
 
 templ Hello(name string) {
-	@Layout("Hello!") {
-		<h1 style="color: red;">Hello, { name }</h1>
-		@button(ButtonHTML{Text: "Hello"})
-		@button(ButtonHTML{Text: "Bye"})
-		<form method="POST" action="/upload" enctype="multipart/form-data">
-			<input name="image" type="file"/>
-			@button(ButtonHTML{Text: "Submit", Type: "submit"})
-		</form>
+	@Layout("RubensDEV's File Uploader") {
+		<div class="wrapper">
+			<header>File Uploader</header>
+			<form action="#">
+				<input class="file-input" type="file" name="image" hidden/>
+				<img src="/static/upload.svg"/>
+				<p>Browse File to Upload</p>
+			</form>
+			<section class="progress-area"></section>
+			<section class="uploaded-area"></section>
+		</div>
+		// <form method="POST" action="/upload" enctype="multipart/form-data">
+		// 	<input name="image" type="file"/>
+		// 	@button(ButtonHTML{Text: "Submit", Type: "submit"})
+		// </form>
 	}
 }
