@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/a-h/templ"
+	"rubensdev.com/go-image-processing/templates"
 )
 
 type config struct {
@@ -19,6 +20,7 @@ type config struct {
 	maxFileSizeMB    float64
 	allowedMimeTypes []string
 	checkWidth       bool
+	env              string
 }
 
 func main() {
@@ -28,6 +30,7 @@ func main() {
 	flag.IntVar(&cfg.maxWidthPixels, "max-width-pixels", 1920, "maximum width allowed in pixels")
 	flag.IntVar(&cfg.maxHeightPixels, "max-height-pixels", 1080, "maximum height allowd in pixels")
 	flag.Float64Var(&cfg.maxFileSizeMB, "max-file-size", 5.00, "maximum file size allowed in Megabytes")
+	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 
 	flag.Func("allowed-mimetypes", "Allowed mimetypes", func(val string) error {
 		if val != "" {
@@ -54,13 +57,11 @@ func main() {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	component := Hello("Rubens")
-
-	fs := http.FileServer(http.Dir("./static"))
+	fs := http.FileServer(http.Dir("./dist/assets"))
+	router.Handle("/", templ.Handler(templates.Home()))
+	router.Handle("/assets/", http.StripPrefix("/assets/", fs))
 
 	imgHandler := NewImageHandler(logger, validator)
-	router.Handle("/", templ.Handler(component))
-	router.Handle("/static/", http.StripPrefix("/static/", fs))
 	router.HandleFunc("/upload", imgHandler.Handle)
 	router.HandleFunc("/upload/multiple", imgHandler.HandleMultiple)
 

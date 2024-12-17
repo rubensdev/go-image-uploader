@@ -1,3 +1,8 @@
+import "./style.css";
+import "./svg/check.svg?no-inline";
+import "./svg/file.svg?no-inline";
+import "./svg/upload.svg?no-inline";
+
 const form = document.querySelector("form"),
   fileInput = document.querySelector(".file-input"),
   progressArea = document.querySelector(".progress-area"),

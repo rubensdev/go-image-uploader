@@ -1,0 +1,40 @@
+package templates
+
+func getAsset(path string) string {
+	asset, exists := Manifest[path]
+	if !exists {
+		return "http://localhost:5173/" + path
+	}
+
+	return asset.File
+}
+
+templ embedAssets(manifest ViteManifest) {
+	<script type="module" src={ "/" + manifest["index.html"].File }></script>
+	for _, file := range manifest["index.html"].CssFiles {
+		<link rel="stylesheet" href={ "/" + file }/>
+	}
+}
+
+templ RootLayout(title string) {
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="utf-8"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<title>{ title }</title>
+			if IsProd {
+				<link rel="preconnect" href="https://fonts.googleapis.com"/>
+				<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+				<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet"/>
+				@embedAssets(Manifest)
+			} else {
+				<link href="http://localhost:5173/src/fonts/font.css" rel="stylesheet"/>
+				<script type="module" src="http://localhost:5173/src/main.js"></script>
+			}
+		</head>
+		<body>
+			{ children... }
+		</body>
+	</html>
+}

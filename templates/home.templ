@@ -1,12 +1,12 @@
-package main
+package templates
 
-templ Hello(name string) {
-	@Layout("RubensDEV's File Uploader") {
+templ Home() {
+	@RootLayout("RubensDEV's File Uploader") {
 		<div class="wrapper">
 			<header>File Uploader</header>
 			<form action="#">
 				<input class="file-input" type="file" name="image" hidden/>
-				<img src="/static/upload.svg"/>
+				<img class="icon__upload" src={ getAsset("src/svg/upload.svg") }/>
 				<p>Browse File to Upload</p>
 			</form>
 			<section class="progress-area"></section>
