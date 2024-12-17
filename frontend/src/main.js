@@ -1,4 +1,14 @@
-const form = document.querySelector("form"),
+import "./style.css";
+import.meta.glob("./svg/*.svg", {
+  eager: true,
+  query: "?no-inline",
+});
+import alpine from "alpinejs";
+
+window.Alpine = alpine;
+window.Alpine.start();
+
+/*const form = document.querySelector("form"),
   fileInput = document.querySelector(".file-input"),
   progressArea = document.querySelector(".progress-area"),
   uploadedArea = document.querySelector(".uploaded-area");
@@ -67,3 +77,4 @@ function uploadFile(name) {
   let data = new FormData(form);
   xhr.send(data);
 }
+*/
