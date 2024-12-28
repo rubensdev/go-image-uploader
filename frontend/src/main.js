@@ -1,80 +1,11 @@
-import "./style.css";
-import.meta.glob("./svg/*.svg", {
+import './style.css';
+import.meta.glob('./svg/*.svg', {
   eager: true,
-  query: "?no-inline",
+  query: '?no-inline',
 });
-import alpine from "alpinejs";
+import alpine from 'alpinejs';
+import './components/image_upload.component';
+import './components/upload_form.component';
 
 window.Alpine = alpine;
 window.Alpine.start();
-
-/*const form = document.querySelector("form"),
-  fileInput = document.querySelector(".file-input"),
-  progressArea = document.querySelector(".progress-area"),
-  uploadedArea = document.querySelector(".uploaded-area");
-
-form.addEventListener("click", () => {
-  fileInput.click();
-});
-
-fileInput.onchange = ({ target }) => {
-  let file = target.files[0];
-  if (file) {
-    let fileName = file.name;
-    if (fileName.length >= 12) {
-      let splitName = fileName.split(".");
-      fileName = splitName[0].substring(0, 13) + "... ." + splitName[1];
-    }
-    uploadFile(fileName);
-  }
-};
-
-function uploadFile(name) {
-  let xhr = new XMLHttpRequest();
-  xhr.open("POST", "/upload");
-  xhr.upload.addEventListener("progress", ({ loaded, total }) => {
-    let fileLoaded = Math.floor((loaded / total) * 100);
-    let fileTotal = Math.floor(total / 1000);
-    let fileSize;
-
-    if (fileTotal < 1024) {
-      fileSize = fileTotal + "KB";
-    } else {
-      fileSize = (loaded / (1024 * 1024)).toFixed(2) + " MB";
-    }
-    let progressHTML = `<li class="row">
-    <img src="/static/file.svg" class="icon__file" />
-    <div class="content">
-        <div class="details">
-            <span class="name">${name} · Uploading</span>
-            <span class="percent">${fileLoaded}%</span>
-        </div>
-        <div class="progress-bar">
-            <div class="progress" style="${fileLoaded}%"></div>
-        </div>
-    </div>
-    </li>`;
-    uploadedArea.classList.add("onprogress");
-    progressArea.innerHTML = progressHTML;
-
-    if (loaded == total) {
-      progressArea.innerHTML = "";
-      let uploadedHTML = `<li class="row">
-        <div class="content upload">
-            <img src="/static/file.svg" class="icon__file" />
-            <div class="details">
-                <span class="name">${name} · Uploaded</span>
-                <span class="size">${fileSize}</span>
-            </div>
-            <img src="/static/check.svg" class="icon__file" />
-        </div>
-      </li>`;
-      uploadedArea.classList.remove("onprogress");
-      uploadedArea.insertAdjacentHTML("afterbegin", uploadedHTML);
-    }
-  });
-
-  let data = new FormData(form);
-  xhr.send(data);
-}
-*/

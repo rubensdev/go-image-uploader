@@ -1,8 +1,10 @@
 package templates
 
+import "rubensdev.com/go-image-processing/templates/manifest"
+
 templ embedAssets() {
 	{{
-		mm := ctx.Value(manifestManagerCtx).(*ManifestManager)
+		mm := ctx.Value(manifestManagerCtx).(*manifest.Manager)
 		entry, err := mm.GetEntry("index.html")
 		if err != nil {
 			panic(err)

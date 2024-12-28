@@ -1,4 +1,4 @@
-package templates
+package manifest
 
 import (
 	"encoding/json"
@@ -15,19 +15,19 @@ type EntryProps struct {
 
 type ViteManifest map[string]EntryProps
 
-type ManifestManager struct {
+type Manager struct {
 	manifest      ViteManifest
 	viteServerURL string
 	mu            sync.RWMutex
 }
 
-func NewManifestManager(path string, viteServerUrl string) (*ManifestManager, error) {
-	mm := &ManifestManager{viteServerURL: viteServerUrl}
+func NewManager(path string, viteServerUrl string) (*Manager, error) {
+	mm := &Manager{viteServerURL: viteServerUrl}
 	err := mm.Load(path)
 	return mm, err
 }
 
-func (mm *ManifestManager) Load(path string) error {
+func (mm *Manager) Load(path string) error {
 	mm.mu.Lock()
 	defer mm.mu.Unlock()
 
@@ -46,7 +46,7 @@ func (mm *ManifestManager) Load(path string) error {
 	return nil
 }
 
-func (mm *ManifestManager) GetAsset(entry string) string {
+func (mm *Manager) GetAsset(entry string) string {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
 
@@ -56,7 +56,7 @@ func (mm *ManifestManager) GetAsset(entry string) string {
 	return mm.viteServerURL + entry
 }
 
-func (mm *ManifestManager) GetEntry(entry string) (EntryProps, error) {
+func (mm *Manager) GetEntry(entry string) (EntryProps, error) {
 	mm.mu.RLock()
 	defer mm.mu.RUnlock()
 

@@ -1,24 +1,32 @@
 package templates
 
+import (
+	"rubensdev.com/go-image-processing/templates/components"
+	"rubensdev.com/go-image-processing/templates/manifest"
+)
+
 templ Home() {
-	{{ mm := ctx.Value(manifestManagerCtx).(*ManifestManager) }}
-	@RootLayout("RubensDEV's File Uploader") {
-		<div class="wrapper">
-			<header>File Uploader</header>
-			<form action="#">
-				<input class="file-input" type="file" name="image" hidden/>
-				<img class="icon__upload" src={ mm.GetAsset("src/svg/upload.svg") }/>
-				<p>Browse File to Upload</p>
-			</form>
-			<section class="progress-area"></section>
-			<section class="uploaded-area"></section>
-			<div x-data="{label: 'Hello world from AlpineJS!'}">
-				<span x-text="label"></span>
+	{{ mm := ctx.Value(manifestManagerCtx).(*manifest.Manager) }}
+	@RootLayout("RubensDEV's Image Uploader") {
+		<div class="file_uploader">
+			<header>Image Uploader</header>
+			<div x-data="UploadForm">
+				<form id="form" class="fu_form" action="#">
+					<input class="fu_form__file_input" type="file" name="image" hidden @click.stop/>
+					<img class="fu_form__upload_icon" src={ mm.GetAsset("src/svg/upload.svg") }/>
+					<p>Browse Image to Upload</p>
+				</form>
+				<section class="fu_area fu_progress_area">
+					<template x-for="file in files" :key="file.id">
+						@components.InProgressItem(mm)
+					</template>
+				</section>
+				<section class="fu_area fu_uploaded_area" :class="{'onprogress': files.length > 0}">
+					<template x-for="file in uploadHistory" :key="file.id">
+						@components.UploadedItem(mm)
+					</template>
+				</section>
 			</div>
 		</div>
-		// <form method="POST" action="/upload" enctype="multipart/form-data">
-		// 	<input name="image" type="file"/>
-		// 	@button(ButtonHTML{Text: "Submit", Type: "submit"})
-		// </form>
 	}
 }

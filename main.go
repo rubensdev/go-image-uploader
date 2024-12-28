@@ -11,6 +11,7 @@ import (
 
 	"github.com/a-h/templ"
 	"rubensdev.com/go-image-processing/templates"
+	"rubensdev.com/go-image-processing/templates/manifest"
 )
 
 type config struct {
@@ -29,7 +30,7 @@ func main() {
 	flag.IntVar(&cfg.port, "port", 8080, "App server port")
 	flag.IntVar(&cfg.maxWidthPixels, "max-width-pixels", 1920, "maximum width allowed in pixels")
 	flag.IntVar(&cfg.maxHeightPixels, "max-height-pixels", 1080, "maximum height allowd in pixels")
-	flag.Float64Var(&cfg.maxFileSizeMB, "max-file-size", 5.00, "maximum file size allowed in Megabytes")
+	flag.Float64Var(&cfg.maxFileSizeMB, "max-file-size", 1.00, "maximum file size allowed in Megabytes")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 
 	flag.Func("allowed-mimetypes", "Allowed mimetypes", func(val string) error {
@@ -57,7 +58,7 @@ func main() {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	mm, err := templates.NewManifestManager("./dist/.vite/manifest.json", "http://localhost:5173")
+	mm, err := manifest.NewManager("./dist/.vite/manifest.json", "http://localhost:5173/")
 	if err != nil {
 		log.Fatalf("Error loading manifest: %v", err.Error())
 	}
