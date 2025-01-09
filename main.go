@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"log/slog"
+	"net"
 	"net/http"
 	"os"
 	"strings"
@@ -58,20 +59,54 @@ func main() {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	mm, err := manifest.NewManager("./dist/.vite/manifest.json", "http://localhost:5173/")
+	devHost := GetOutboundIP().String()
+
+	mm, err := manifest.NewManager("./dist/.vite/manifest.json", cfg.env, devHost)
 	if err != nil {
 		log.Fatalf("Error loading manifest: %v", err.Error())
 	}
-	isProd := cfg.env == "production"
 
 	fs := http.FileServer(http.Dir("./dist/assets"))
-	router.Handle("/", templ.Handler(templates.Home()))
+	uploadsFs := http.FileServer(http.Dir("./uploads"))
+
+	homeVD := templates.ViewData{
+		Title: "Desk Setup",
+		Lang:  "es",
+		Meta: templates.Metadata{
+			"allowed_mimetypes": cfg.allowedMimeTypes,
+			"max_file_size":     fmt.Sprintf("%.2f", cfg.maxFileSizeMB),
+			"upload_endpoint":   "/upload",
+		},
+	}
+	homeView := templates.Home(homeVD)
+
+	router.Handle("/", templ.Handler(homeView))
 	router.Handle("/assets/", http.StripPrefix("/assets/", fs))
+	router.Handle("/uploads/", http.StripPrefix("/uploads/", uploadsFs))
 
 	imgHandler := NewImageHandler(logger, validator)
 	router.HandleFunc("/upload", imgHandler.Handle)
 	router.HandleFunc("/upload/multiple", imgHandler.HandleMultiple)
 
 	logger.Info("Server starting", "port", cfg.port)
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", cfg.port), templates.WithManifestManager(mm, isProd)(router)))
+
+	err = http.ListenAndServe(
+		fmt.Sprintf(":%d", cfg.port),
+		templates.WithManifestManager(mm)(router),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func GetOutboundIP() net.IP {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	localAddr := conn.LocalAddr().(*net.UDPAddr)
+
+	return localAddr.IP
 }

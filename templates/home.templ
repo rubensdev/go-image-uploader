@@ -5,28 +5,61 @@ import (
 	"rubensdev.com/go-image-processing/templates/manifest"
 )
 
-templ Home() {
-	{{ mm := ctx.Value(manifestManagerCtx).(*manifest.Manager) }}
-	@RootLayout("RubensDEV's Image Uploader") {
-		<div class="file_uploader">
-			<header>Image Uploader</header>
-			<div x-data="UploadForm">
-				<form id="form" class="fu_form" action="#">
-					<input class="fu_form__file_input" type="file" name="image" hidden @click.stop/>
-					<img class="fu_form__upload_icon" src={ mm.GetAsset("src/svg/upload.svg") }/>
-					<p>Browse Image to Upload</p>
+script globalConfig(vd ViewData) {
+	document.addEventListener('alpine:init', () => {
+		Object.assign(window.globalConfig, window.globalConfig, {
+			allowedMimetypes: vd.Meta["allowed_mimetypes"],
+			maxFileSize: vd.Meta["max_file_size"],
+			uploadEndpoint: vd.Meta["upload_endpoint"],
+			uploadStatuses: vd.Meta["upload_statuses"],
+		});
+		Object.assign(window.i18n, window.i18n, {
+			cannot_load_img: 'Could not load image',
+			upload_status: {
+				cancelled: 'Upload cancelled',
+				error: 'An error has occurred',
+				file_size_exceeded: 'File size exceeded',
+				success: 'Upload successfully',
+				uploading: 'Uploading',
+				unsupported: 'Unsupported format',
+			}
+		})
+	})
+}
+
+templ Home(vd ViewData) {
+	{{
+		mm := ctx.Value(manifestManagerCtx).(*manifest.Manager)
+	}}
+	@RootLayout(vd.Title, vd.Lang) {
+		@globalConfig(vd)
+		<header class="header">
+			<h1 class="title">Image Upload</h1>
+		</header>
+		<div class="wrapper" x-data="UploadForm()">
+			<div class="box upload_box" action="#">
+				<div class="drag_n_drop_box" @drop.prevent="onDrop" @dragover.prevent>
+					<img src={ mm.GetAsset("src/svg/upload.svg") } style="width: 32px;"/>
+					Drag and Drop
+				</div>
+				<p>
+					or
+				</p>
+				<form id="form" action="#" style="margin-bottom: 0.5rem; width: 100%;">
+					<input class="file_input" type="file" name="images[]" hidden multiple @click.stop/>
+					<button class="btn" type="button">
+						Browse
+					</button>
 				</form>
-				<section class="fu_area fu_progress_area">
-					<template x-for="file in files" :key="file.id">
-						@components.InProgressItem(mm)
-					</template>
-				</section>
-				<section class="fu_area fu_uploaded_area" :class="{'onprogress': files.length > 0}">
-					<template x-for="file in uploadHistory" :key="file.id">
-						@components.UploadedItem(mm)
-					</template>
-				</section>
+				<span class="mfs_msg">
+					Max. File. Size { vd.Meta["max_file_size"].(string) }MB
+				</span>
 			</div>
+			<ul class="upload_list">
+				<template x-for="item in items" :key="item.id">
+					@components.UploadItem(mm)
+				</template>
+			</ul>
 		</div>
 	}
 }

@@ -1,0 +1,62 @@
+package components
+
+import "rubensdev.com/go-image-processing/templates/manifest"
+
+templ UploadItem(mm *manifest.Manager) {
+	<li class="box upload_list_item" x-data="UploadItem(item)">
+		<template x-if="thumbnail.length">
+			<img class="upload_list_item__thumbnail" :src="thumbnail"/>
+		</template>
+		<template x-if="!thumbnail.length">
+			<img class="upload_list_item__thumbnail" src={ mm.GetAsset("src/svg/no_photo.svg") }/>
+		</template>
+		<div class="upload_list_item__details">
+			<div class="upload_list_item__details-top">
+				<div>
+					<span class="upload_list_item__filename" x-text="filename"></span>
+					<span class="upload_list_item__size" x-text="size"></span>
+				</div>
+				<template x-if="isUploading || isPaused">
+					<div class="upload_list_item__progress_control">
+						// <template x-if="!isPaused">
+						// 	<img src={ mm.GetAsset("src/svg/pause.svg") }/>
+						// </template>
+						// <template x-if="isPaused">
+						// 	<img src={ mm.GetAsset("src/svg/play.svg") }/>
+						// </template>
+						<img src={ mm.GetAsset("src/svg/stop.svg") } @click="cancelUpload"/>
+					</div>
+				</template>
+				<template x-if="!isUploading && !isPaused">
+					<div class="upload_list_item__close_btn" @click="dismiss" role="button">
+						<img src={ mm.GetAsset("src/svg/close.svg") } style="width: 24px;"/>
+					</div>
+				</template>
+			</div>
+			<div class="upload_list_item__progress_bar">
+				<div
+					class="upload_list_item__progress_bar-progress"
+					:style="{ 
+					background: `var(--${status})`,
+					width: `${progress}%`,
+				}"
+				></div>
+			</div>
+			<div class="upload_list_item__details-bottom">
+				<span x-text="statusMsg"></span>
+				<template x-if="isUploading">
+					<span x-text="`${progress}%`"></span>
+				</template>
+				<template x-if="isSuccess">
+					<img src={ mm.GetAsset("src/svg/check.svg") } style="width: 16px;"/>
+				</template>
+				<template x-if="hasError">
+					<div class="upload_list_item__try_again_btn" @click="retry" role="button">
+						<span>Try again</span>
+						<img src={ mm.GetAsset("src/svg/autorenew.svg") }/>
+					</div>
+				</template>
+			</div>
+		</div>
+	</li>
+}

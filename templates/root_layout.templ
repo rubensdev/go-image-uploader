@@ -2,9 +2,8 @@ package templates
 
 import "rubensdev.com/go-image-processing/templates/manifest"
 
-templ embedAssets() {
+templ embedAssets(mm *manifest.Manager) {
 	{{
-		mm := ctx.Value(manifestManagerCtx).(*manifest.Manager)
 		entry, err := mm.GetEntry("index.html")
 		if err != nil {
 			panic(err)
@@ -16,25 +15,51 @@ templ embedAssets() {
 	}
 }
 
-templ RootLayout(title string) {
+script initGlobalObjects(lang string) {
+	document.addEventListener('alpine:init', () => {
+		window.globalConfig = {lang: lang};
+		window.i18n = {}
+	})
+}
+
+templ RootLayout(title string, lang string) {
+	{{ mm := ctx.Value(manifestManagerCtx).(*manifest.Manager) }}
 	<!DOCTYPE html>
-	<html lang="en">
+	<html lang={ lang }>
 		<head>
 			<meta charset="utf-8"/>
-			<meta name="viewport" content="width=device-width, initial-scale=1"/>
+			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ title }</title>
-			if ctx.Value(isProdCtx).(bool) {
+			if !mm.IsDevelopment() {
 				<link rel="preconnect" href="https://fonts.googleapis.com"/>
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-				<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500&display=swap" rel="stylesheet"/>
-				@embedAssets()
+				<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500&display=swap" rel="stylesheet"/>
+				@embedAssets(mm)
 			} else {
-				<link href="http://localhost:5173/src/fonts/font.css" rel="stylesheet"/>
-				<script type="module" src="http://localhost:5173/src/main.js"></script>
+				<link href={ mm.ViteServerURL() + "src/fonts/font.css" } rel="stylesheet"/>
+				<script type="module" src={ mm.ViteServerURL() + "src/main.js" }></script>
 			}
 		</head>
 		<body>
-			{ children... }
+			@initGlobalObjects(lang)
+			<section>
+				{ children... }
+			</section>
+			<div class="menu">
+				<div class="menu__window">
+					<div class="menu__btn">
+						<img src={ mm.GetAsset("src/svg/home.svg") }/>
+					</div>
+					<div class="menu__btn" style="position: relative;">
+						<div class="menu__add_btn">
+							<img src={ mm.GetAsset("src/svg/add.svg") }/>
+						</div>
+					</div>
+					<div class="menu__btn">
+						<img src={ mm.GetAsset("src/svg/account.svg") }/>
+					</div>
+				</div>
+			</div>
 		</body>
 	</html>
 }

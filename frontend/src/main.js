@@ -4,7 +4,7 @@ import.meta.glob('./svg/*.svg', {
   query: '?no-inline',
 });
 import alpine from 'alpinejs';
-import './components/image_upload.component';
+import './components/upload_item.component';
 import './components/upload_form.component';
 
 window.Alpine = alpine;

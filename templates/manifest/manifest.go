@@ -3,6 +3,7 @@ package manifest
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"sync"
 )
@@ -17,14 +18,23 @@ type ViteManifest map[string]EntryProps
 
 type Manager struct {
 	manifest      ViteManifest
+	env           string
 	viteServerURL string
 	mu            sync.RWMutex
 }
 
-func NewManager(path string, viteServerUrl string) (*Manager, error) {
-	mm := &Manager{viteServerURL: viteServerUrl}
-	err := mm.Load(path)
-	return mm, err
+func NewManager(path string, env string, devHost string) (*Manager, error) {
+	mm := &Manager{
+		env:           env,
+		viteServerURL: fmt.Sprintf("http://%s:5173/", devHost),
+	}
+
+	if env != "development" {
+		err := mm.Load(path)
+		return mm, err
+	}
+
+	return mm, nil
 }
 
 func (mm *Manager) Load(path string) error {
@@ -64,4 +74,12 @@ func (mm *Manager) GetEntry(entry string) (EntryProps, error) {
 		return manifestEntry, nil
 	}
 	return EntryProps{}, errors.New("entry not found")
+}
+
+func (mm *Manager) ViteServerURL() string {
+	return mm.viteServerURL
+}
+
+func (mm *Manager) IsDevelopment() bool {
+	return mm.env == "development"
 }
