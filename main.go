@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io/fs"
 	"log"
 	"log/slog"
 	"net"
@@ -61,12 +62,11 @@ func main() {
 
 	devHost := GetOutboundIP().String()
 
-	mm, err := manifest.NewManager("./dist/.vite/manifest.json", cfg.env, devHost)
+	mm, err := manifest.NewManager(ManifestJSONStr, cfg.env, devHost)
 	if err != nil {
 		log.Fatalf("Error loading manifest: %v", err.Error())
 	}
 
-	fs := http.FileServer(http.Dir("./dist/assets"))
 	uploadsFs := http.FileServer(http.Dir("./uploads"))
 
 	homeVD := templates.ViewData{
@@ -81,7 +81,16 @@ func main() {
 	homeView := templates.Home(homeVD)
 
 	router.Handle("/", templ.Handler(homeView))
-	router.Handle("/assets/", http.StripPrefix("/assets/", fs))
+
+	if cfg.env == "production" {
+		stripped, err := fs.Sub(AssetsFS, "dist/assets")
+		if err != nil {
+			log.Fatal(err)
+		}
+		fs := http.FileServer(http.FS(stripped))
+		router.Handle("/assets/", http.StripPrefix("/assets/", fs))
+	}
+
 	router.Handle("/uploads/", http.StripPrefix("/uploads/", uploadsFs))
 
 	imgHandler := NewImageHandler(logger, validator)
