@@ -3,3 +3,4 @@ uploads/
 *_templ.go
 tmp/
 dist/
+bin/
