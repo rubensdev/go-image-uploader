@@ -3,8 +3,15 @@
 
 package main
 
-import "embed"
+import (
+	"embed"
+	"net/http"
+)
 
 var AssetsFS embed.FS
 
 var ManifestJSONStr string
+
+func GetAssetsHandler() http.Handler {
+	return nil
+}

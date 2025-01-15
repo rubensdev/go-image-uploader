@@ -2,7 +2,7 @@ package templates
 
 import (
 	"rubensdev.com/go-image-processing/templates/components"
-	"rubensdev.com/go-image-processing/templates/manifest"
+	"rubensdev.com/go-image-processing/templates/vite"
 )
 
 script globalConfig(vd ViewData) {
@@ -29,7 +29,7 @@ script globalConfig(vd ViewData) {
 
 templ Home(vd ViewData) {
 	{{
-		mm := ctx.Value(manifestManagerCtx).(*manifest.Manager)
+		vm := ctx.Value(ViteManagerCtx).(*vite.Manager)
 	}}
 	@RootLayout(vd.Title, vd.Lang) {
 		@globalConfig(vd)
@@ -39,7 +39,7 @@ templ Home(vd ViewData) {
 		<div class="wrapper" x-data="UploadForm()">
 			<div class="box upload_box" action="#">
 				<div class="drag_n_drop_box" @drop.prevent="onDrop" @dragover.prevent>
-					<img src={ mm.GetAsset("src/svg/upload.svg") } style="width: 32px;"/>
+					<img src={ vm.GetAsset("src/svg/upload.svg") } style="width: 32px;"/>
 					Drag and Drop
 				</div>
 				<p>
@@ -57,7 +57,7 @@ templ Home(vd ViewData) {
 			</div>
 			<ul class="upload_list">
 				<template x-for="item in items" :key="item.id">
-					@components.UploadItem(mm)
+					@components.UploadItem(vm)
 				</template>
 			</ul>
 		</div>

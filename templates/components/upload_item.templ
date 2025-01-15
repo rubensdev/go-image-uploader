@@ -1,14 +1,14 @@
 package components
 
-import "rubensdev.com/go-image-processing/templates/manifest"
+import "rubensdev.com/go-image-processing/templates/vite"
 
-templ UploadItem(mm *manifest.Manager) {
+templ UploadItem(vm *vite.Manager) {
 	<li class="box upload_list_item" x-data="UploadItem(item)">
 		<template x-if="thumbnail.length">
 			<img class="upload_list_item__thumbnail" :src="thumbnail"/>
 		</template>
 		<template x-if="!thumbnail.length">
-			<img class="upload_list_item__thumbnail" src={ mm.GetAsset("src/svg/no_photo.svg") }/>
+			<img class="upload_list_item__thumbnail" src={ vm.GetAsset("src/svg/no_photo.svg") }/>
 		</template>
 		<div class="upload_list_item__details">
 			<div class="upload_list_item__details-top">
@@ -19,17 +19,17 @@ templ UploadItem(mm *manifest.Manager) {
 				<template x-if="isUploading || isPaused">
 					<div class="upload_list_item__progress_control">
 						// <template x-if="!isPaused">
-						// 	<img src={ mm.GetAsset("src/svg/pause.svg") }/>
+						// 	<img src={ vm.GetAsset("src/svg/pause.svg") }/>
 						// </template>
 						// <template x-if="isPaused">
-						// 	<img src={ mm.GetAsset("src/svg/play.svg") }/>
+						// 	<img src={ vm.GetAsset("src/svg/play.svg") }/>
 						// </template>
-						<img src={ mm.GetAsset("src/svg/stop.svg") } @click="cancelUpload"/>
+						<img src={ vm.GetAsset("src/svg/stop.svg") } @click="cancelUpload"/>
 					</div>
 				</template>
 				<template x-if="!isUploading && !isPaused">
 					<div class="upload_list_item__close_btn" @click="dismiss" role="button">
-						<img src={ mm.GetAsset("src/svg/close.svg") } style="width: 24px;"/>
+						<img src={ vm.GetAsset("src/svg/close.svg") } style="width: 24px;"/>
 					</div>
 				</template>
 			</div>
@@ -48,12 +48,12 @@ templ UploadItem(mm *manifest.Manager) {
 					<span x-text="`${progress}%`"></span>
 				</template>
 				<template x-if="isSuccess">
-					<img src={ mm.GetAsset("src/svg/check.svg") } style="width: 16px;"/>
+					<img src={ vm.GetAsset("src/svg/check.svg") } style="width: 16px;"/>
 				</template>
 				<template x-if="hasError">
 					<div class="upload_list_item__try_again_btn" @click="retry" role="button">
 						<span>Try again</span>
-						<img src={ mm.GetAsset("src/svg/autorenew.svg") }/>
+						<img src={ vm.GetAsset("src/svg/autorenew.svg") }/>
 					</div>
 				</template>
 			</div>

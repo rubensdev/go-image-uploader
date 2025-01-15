@@ -1,9 +1,9 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
-	"io/fs"
 	"log"
 	"log/slog"
 	"net"
@@ -11,9 +11,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/a-h/templ"
 	"rubensdev.com/go-image-processing/templates"
-	"rubensdev.com/go-image-processing/templates/manifest"
+	"rubensdev.com/go-image-processing/templates/vite"
 )
 
 type config struct {
@@ -32,7 +31,7 @@ func main() {
 	flag.IntVar(&cfg.port, "port", 8080, "App server port")
 	flag.IntVar(&cfg.maxWidthPixels, "max-width-pixels", 1920, "maximum width allowed in pixels")
 	flag.IntVar(&cfg.maxHeightPixels, "max-height-pixels", 1080, "maximum height allowd in pixels")
-	flag.Float64Var(&cfg.maxFileSizeMB, "max-file-size", 1.00, "maximum file size allowed in Megabytes")
+	flag.Float64Var(&cfg.maxFileSizeMB, "max-file-size", 5.00, "maximum file size allowed in Megabytes")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 
 	flag.Func("allowed-mimetypes", "Allowed mimetypes", func(val string) error {
@@ -60,17 +59,13 @@ func main() {
 
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	devHost := GetOutboundIP().String()
-
-	mm, err := manifest.NewManager(ManifestJSONStr, cfg.env, devHost)
+	vm, err := vite.NewManager(ManifestJSONStr, cfg.env)
 	if err != nil {
-		log.Fatalf("Error loading manifest: %v", err.Error())
+		log.Fatalf("Error initializing vite manager: %v", err.Error())
 	}
 
-	uploadsFs := http.FileServer(http.Dir("./uploads"))
-
 	homeVD := templates.ViewData{
-		Title: "Desk Setup",
+		Title: "GOAT Image Uploader",
 		Lang:  "es",
 		Meta: templates.Metadata{
 			"allowed_mimetypes": cfg.allowedMimeTypes,
@@ -78,20 +73,24 @@ func main() {
 			"upload_endpoint":   "/upload",
 		},
 	}
-	homeView := templates.Home(homeVD)
 
-	router.Handle("/", templ.Handler(homeView))
+	router.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+
+		if r.URL.Path == "/favicon.ico" {
+			http.NotFound(w, r)
+			return
+		}
+
+		if vm.InDevMode() {
+			vm.SetDevServerURL(strings.Split(r.Host, ":")[0])
+		}
+		ctx := context.WithValue(context.Background(), templates.ViteManagerCtx, vm)
+		templates.Home(homeVD).Render(ctx, w)
+	})
 
 	if cfg.env == "production" {
-		stripped, err := fs.Sub(AssetsFS, "dist/assets")
-		if err != nil {
-			log.Fatal(err)
-		}
-		fs := http.FileServer(http.FS(stripped))
-		router.Handle("/assets/", http.StripPrefix("/assets/", fs))
+		router.Handle("/assets/", GetAssetsHandler())
 	}
-
-	router.Handle("/uploads/", http.StripPrefix("/uploads/", uploadsFs))
 
 	imgHandler := NewImageHandler(logger, validator)
 	router.HandleFunc("/upload", imgHandler.Handle)
@@ -101,7 +100,7 @@ func main() {
 
 	err = http.ListenAndServe(
 		fmt.Sprintf(":%d", cfg.port),
-		templates.WithManifestManager(mm)(router),
+		router,
 	)
 	if err != nil {
 		log.Fatal(err)

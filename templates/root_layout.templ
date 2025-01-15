@@ -1,10 +1,10 @@
 package templates
 
-import "rubensdev.com/go-image-processing/templates/manifest"
+import "rubensdev.com/go-image-processing/templates/vite"
 
-templ embedAssets(mm *manifest.Manager) {
+templ embedAssets(vm *vite.Manager) {
 	{{
-		entry, err := mm.GetEntry("index.html")
+		entry, err := vm.GetEntry("index.html")
 		if err != nil {
 			panic(err)
 		}
@@ -23,21 +23,21 @@ script initGlobalObjects(lang string) {
 }
 
 templ RootLayout(title string, lang string) {
-	{{ mm := ctx.Value(manifestManagerCtx).(*manifest.Manager) }}
+	{{ vm := ctx.Value(ViteManagerCtx).(*vite.Manager) }}
 	<!DOCTYPE html>
 	<html lang={ lang }>
 		<head>
 			<meta charset="utf-8"/>
 			<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 			<title>{ title }</title>
-			if !mm.IsDevelopment() {
+			if !vm.InDevMode() {
 				<link rel="preconnect" href="https://fonts.googleapis.com"/>
 				<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 				<link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@300;400;500&display=swap" rel="stylesheet"/>
-				@embedAssets(mm)
+				@embedAssets(vm)
 			} else {
-				<link href={ mm.ViteServerURL() + "src/fonts/font.css" } rel="stylesheet"/>
-				<script type="module" src={ mm.ViteServerURL() + "src/main.js" }></script>
+				<link href={ vm.GetAsset("src/fonts/font.css") } rel="stylesheet"/>
+				<script type="module" src={ vm.GetAsset("src/main.js") }></script>
 			}
 		</head>
 		<body>
@@ -45,21 +45,21 @@ templ RootLayout(title string, lang string) {
 			<section>
 				{ children... }
 			</section>
-			<div class="menu">
-				<div class="menu__window">
-					<div class="menu__btn">
-						<img src={ mm.GetAsset("src/svg/home.svg") }/>
-					</div>
-					<div class="menu__btn" style="position: relative;">
-						<div class="menu__add_btn">
-							<img src={ mm.GetAsset("src/svg/add.svg") }/>
-						</div>
-					</div>
-					<div class="menu__btn">
-						<img src={ mm.GetAsset("src/svg/account.svg") }/>
-					</div>
-				</div>
-			</div>
+			// <div class="menu">
+			// 	<div class="menu__window">
+			// 		<div class="menu__btn">
+			// 			<img src={ vm.GetAsset("src/svg/home.svg") }/>
+			// 		</div>
+			// 		<div class="menu__btn" style="position: relative;">
+			// 			<div class="menu__add_btn">
+			// 				<img src={ vm.GetAsset("src/svg/add.svg") }/>
+			// 			</div>
+			// 		</div>
+			// 		<div class="menu__btn">
+			// 			<img src={ vm.GetAsset("src/svg/account.svg") }/>
+			// 		</div>
+			// 	</div>
+			// </div>
 		</body>
 	</html>
 }
