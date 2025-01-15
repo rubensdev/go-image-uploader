@@ -94,7 +94,7 @@ func main() {
 
 	imgHandler := NewImageHandler(logger, validator)
 	router.HandleFunc("/upload", imgHandler.Handle)
-	router.HandleFunc("/upload/multiple", imgHandler.HandleMultiple)
+	//router.HandleFunc("/upload/multiple", imgHandler.HandleMultiple)
 
 	logger.Info("Server starting", "port", cfg.port)
 
